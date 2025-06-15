@@ -39,20 +39,20 @@
 
 | Layer | Operation                  | Input Shape    | Output Shape |
 |-------|----------------------------|----------------|---------------|
-| 1     | Linear + BN + ReLU         | 128 × T        | 128           |
-| 2     | Gaussian Sampling           | 128            | 128           |
+| 1     | Linear + BN + ReLU         | [128, T]        | [128]           |
+| 2     | Gaussian Sampling           | [128]            | [128]           |
 
 ---
 
 ### 2.2 Context Encoder
 
-**Input:** Sentence vector (128) + noise vector (e.g., 100)
+**Input:** Sentence vector [128] + noise vector (e.g., [100])
 
 | Layer | Operation                  | Input Shape          | Output Shape |
 |-------|----------------------------|----------------------|---------------|
-| 1     | Linear + BN + ReLU         | 128 + noise_dim      | 128           |
-| 2     | GRU                        | 128                  | 128           |
-| 3     | Text2Gist Cell             | (i_t: 128, h_prev: 128) | o_t: 128    |
+| 1     | Linear + BN + ReLU         | [128 + noise_dim]      | [128]           |
+| 2     | GRU                        | [128]                  | [128]           |
+| 3     | Text2Gist Cell             | (i_t: [128], h_prev: [128]) | o_t: [128]    |
 
 ---
 
@@ -60,8 +60,8 @@
 
 | Layer | Operation            | Input | Output Shape         |
 |-------|----------------------|-------|----------------------|
-| 1     | Linear + BN + Tanh   | 128   | 1024                 |
-| 2     | Reshape              | 1024  | [16, 1, 1, 64]       |
+| 1     | Linear + BN + Tanh   | [128]   | [1024]                 |
+| 2     | Reshape              | [1024]  | [16, 1, 1, 64]       |
 
 ---
 
@@ -106,13 +106,13 @@
 |-------|-----------------------------|---------------------|
 | 1-4   | Conv2D + BN + LeakyReLU     | [512, H, W]         |
 | 5     | Conv2D (4x4, 32) + BN       | [32, 1, 1]          |
-| 6     | Reshape + concat over T     | [1, 32 × 4 × T]     |
+| 6     | Reshape + concat over T     | [1, 32, 4, T]     |
 
 #### Text Encoder
 
 | Layer | Operation         | Input Shape   | Output Shape       |
 |-------|-------------------|---------------|---------------------|
-| 1     | Linear + BN       | 128 × T       | 32 × 4 × T          |
+| 1     | Linear + BN       | [128, T]       | [32, 4, T]          |
 
 #### Final Scoring:
 
@@ -127,7 +127,7 @@ D_S = sigmoid(w^T * (E_img(X) * E_text(S)) + b)
 For a story of `T` sentences, the model generates a sequence of images:
 
 ```
-X_hat = [x̂_1, x̂_2, ..., x̂_T], where each x̂_t is in R^{3x64x64}
+X_hat = [x̂_1, x̂_2, ..., x̂_T], where each x̂_t is in R^{[3, 64, 64]}
 ```
 
 ---
@@ -167,7 +167,7 @@ min_θ max_ψI,ψS   α * L_image + β * L_story + L_KL
 
 **Steps:**
 
-1. Encode each sentence `s_t` to a 128-dim vector.
+1. Encode each sentence `s_t` to a [128]-dimensional vector.
 2. Story encoder maps full `S` to latent `h_0`.
 3. For each time step `t`:
    ```
